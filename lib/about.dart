@@ -13,7 +13,7 @@ class AboutPage extends StatefulWidget{
 
 class _AboutPageState extends State<AboutPage> with SingleTickerProviderStateMixin {
 
-  bool _status = true;
+  bool _status = false;
   final FocusNode myFocusNode = FocusNode();
 
   //globalkey でformの入力を行う
@@ -276,8 +276,8 @@ class _AboutPageState extends State<AboutPage> with SingleTickerProviderStateMix
                         debugPrint("Name : ${user}");
 
                         //ここでユーザ名をサーバに送る
+                        //ここでのngrokはok
                         getData(user.text);
-
                       });
                     },
                     shape: RoundedRectangleBorder(

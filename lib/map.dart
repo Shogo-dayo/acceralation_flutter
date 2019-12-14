@@ -11,7 +11,6 @@ import 'package:flutter_compass/flutter_compass.dart';
 import 'package:vibration/vibration.dart';
 
 
-
 int step_sum = 0;
 int step_now = 0;
 String name = 'user_1';
@@ -42,15 +41,15 @@ class _MapPageState extends State<MapPage> {
   //gyro : デバイスの回転を示す
 
   AnimationController _controller;
-  int _radioValue;
 
   @override
   void initState() {
     super.initState();
     print("init start");
     getacceralation();
-    Timer.periodic(const Duration(milliseconds: 500), getData);
-    Timer.periodic(const Duration(milliseconds: 500), UserStepRequest);
+    Timer.periodic(Duration(milliseconds: 500), getData);
+    Timer.periodic(Duration(milliseconds: 500), UserStepRequest);
+    _vibrate();
   }
 
   @override
@@ -66,34 +65,17 @@ class _MapPageState extends State<MapPage> {
         body: Center(
           child: Column(
               children: <Widget>[
-
-                Container(
-                    width: 300.0,
-                    height: 300.0,
-                    decoration: BoxDecoration(
-                      image: DecorationImage(
-                        image: NetworkImage(
-                            "https://media.qikeru.me/wp-content/uploads/2015/01/zahyou2.png"),
-                        fit: BoxFit.cover,
-                      ),
-                    )
-                ),
+                Padding(padding: EdgeInsets.all(50)),
 
                 Row(
                   children: <Widget>[
                     Padding(padding: EdgeInsets.all(30)),
 
                     Container(
-                        width: 140.0,
-                        height: 140.0,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          image: DecorationImage(
-                            image: NetworkImage(
-                                "https://www.silhouette-illust.com/wp-content/uploads/2016/07/4515-300x300.jpg"),
-                            fit: BoxFit.cover,
-                          ),
-                        )
+                        child: Image.asset("lib/images/step.png",
+                          height: 100,
+                          width: 100,
+                          fit: BoxFit.fitWidth,)
                     ),
 
                     Padding(padding: EdgeInsets.all(10)),
@@ -105,7 +87,7 @@ class _MapPageState extends State<MapPage> {
                 ),
 
                 
-                Padding(padding: EdgeInsets.all(10)),
+                Padding(padding: EdgeInsets.all(30)),
 
                 Row(
                   children: <Widget>[
@@ -122,6 +104,7 @@ class _MapPageState extends State<MapPage> {
 
                     Text("お宝までの距離 : ${distance}",
                     style: TextStyle(fontSize: 20),)
+                    //TODO  distanceが近いときに通知する
                   ],
                 ),
               ],
@@ -161,6 +144,11 @@ class _MapPageState extends State<MapPage> {
     acceralation_list.clear();
   }
 
+  void _vibrate(){
+    if (distance == 0) {
+      Vibration.vibrate();
+    }
+  }
 
 }
 

@@ -1,5 +1,10 @@
 import 'package:acceralation_flutter/main.dart';
 import "package:flutter/material.dart";
+import "package:flutter/material.dart";
+import 'package:http/http.dart' as http;
+import 'post.dart';
+import 'dart:convert';
+import './about.dart';
 
 
 class FlightPage extends StatefulWidget {
@@ -12,34 +17,48 @@ class FlightPageState extends State<FlightPage> {
   bool _status = true;
   final FocusNode myFocusNode = FocusNode();
 
-  //globalkey でformの入力を行う
-
-  final _Key = GlobalKey<State>();
 
   // init the step to 0th position
   int current_step = 0;
 
   //TODO currentstepの状態で足跡を制御する.
+  String url = "http://d11f9a85.ngrok.io/location/phase";
+
+  TextEditingController currentstep = TextEditingController();
+
+  //サーバにnameと電話番号を送る
+  //TODO ngrokは更新される
+
+  getData(String count_step) async{
+    String profile = url +  count_step;
+    var res = await http.get(profile,headers:{"Accept":"application/json"});
+    var resBody = json.decode(res.body);
+    current_step = resBody["curren_step"];
+    setState(() {
+
+      print("step success");
+    });
+  }
 
   List<Step> my_steps = [
     Step(
       // Title of the Step
         title: Text("空港に向かっていますか"),
         // Content, it can be any widget here. Using basic Text for this example
-        content: Text("", style: TextStyle(fontSize: 12),),
+        content: Text("", style: TextStyle(fontSize: 10),),
         isActive: true,),
     Step(
         title: Text("あなたはチェックインを終えましたか"),
-        content: Text("",style: TextStyle(fontSize: 12)),
+        content: Text("",style: TextStyle(fontSize: 10)),
         // You can change the style of the step icon i.e number, editing, etc.
         isActive: true),
     Step(
         title: Text("あなたは検査を終えましたか"),
-        content: Text("",style: TextStyle(fontSize: 12)),
+        content: Text("",style: TextStyle(fontSize: 10)),
         isActive: true),
     Step(
         title: Text("搭乗しましたか"),
-        content: Text("",style: TextStyle(fontSize: 12)),
+        content: Text("",style: TextStyle(fontSize: 10)),
         isActive: true),
   ];
 
@@ -140,8 +159,10 @@ class FlightPageState extends State<FlightPage> {
                     // update the variable handling the current step value
                     // jump to the tapped step
                     current_step = step;
+                    debugPrint("Current_Step : ${current_step}");
 
-                    //TODO ここで現時点でのステップをサーバに送る
+                    //TODO ここで,現時点でのステップをサーバに送る
+                    getData(currentstep.text);
 
 
 
