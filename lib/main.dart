@@ -5,7 +5,6 @@ import './about.dart' as aboutPage;
 import './map.dart' as mapPage;
 
 void main() => runApp(MyApp());
-////////////////////////////////////
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
