@@ -24,7 +24,7 @@ class FlightPageState extends State<FlightPage> {
   List<Step> my_steps = [
     Step(
       // Title of the Step
-        title: Text("現在地を教えてください"),
+        title: Text("空港に向かっていますか"),
         // Content, it can be any widget here. Using basic Text for this example
         content: Text("", style: TextStyle(fontSize: 12),),
         isActive: true,),

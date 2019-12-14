@@ -1,5 +1,8 @@
 import 'package:acceralation_flutter/main.dart';
 import "package:flutter/material.dart";
+import 'package:http/http.dart' as http;
+import 'post.dart';
+import 'dart:convert';
 
 
 class AboutPage extends StatefulWidget{
@@ -17,9 +20,28 @@ class _AboutPageState extends State<AboutPage> with SingleTickerProviderStateMix
 
   final _formKey = GlobalKey<FormState>();
 
+  String name = "";
+  String tel = "";
+  String url = "http://d11f9a85.ngrok.io/location/update";
+
+  TextEditingController user = TextEditingController();
+
+  //サーバにnameと電話番号を送る
+  //TODO ngrokは更新される
+
+  getData(String username) async{
+    String profile = url +  username;
+    var res = await http.get(profile,headers:{"Accept":"application/json"});
+    var resBody = json.decode(res.body);
+    name = resBody["name"];
+    tel = resBody["tel"];
+    setState(() {
+      print("success");
+    });
+  }
+
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
   }
 
@@ -162,7 +184,7 @@ class _AboutPageState extends State<AboutPage> with SingleTickerProviderStateMix
                                 children: <Widget>[
                                   Flexible(
                                     child: TextField(
-                                      key: _formKey,
+                                      controller: user,
                                       decoration: InputDecoration(
                                         hintText: "Enter Your Name",
                                       ),
@@ -251,10 +273,10 @@ class _AboutPageState extends State<AboutPage> with SingleTickerProviderStateMix
                       setState(() {
                         _status = true;
                         FocusScope.of(context).requestFocus(FocusNode());
-                        debugPrint("Name : ${_formKey}");
+                        debugPrint("Name : ${user}");
 
-                        //TODO ここでユーザ名をサーバに送る
-
+                        //ここでユーザ名をサーバに送る
+                        getData(user.text);
 
                       });
                     },
@@ -264,6 +286,7 @@ class _AboutPageState extends State<AboutPage> with SingleTickerProviderStateMix
             ),
             flex: 2,
           ),
+
           Expanded(
             child: Padding(
               padding: EdgeInsets.only(left: 10.0),
@@ -308,3 +331,4 @@ class _AboutPageState extends State<AboutPage> with SingleTickerProviderStateMix
     );
   }
 }
+

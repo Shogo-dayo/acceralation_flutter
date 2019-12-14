@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:sensors/sensors.dart';
@@ -6,6 +7,9 @@ import 'package:http/http.dart' as http;
 import 'post.dart';
 import 'dart:convert';
 import 'package:flutter_compass/flutter_compass.dart';
+
+import 'package:vibration/vibration.dart';
+
 
 
 int step_sum = 0;
@@ -24,6 +28,9 @@ class MapPage extends StatefulWidget {
 
 class _MapPageState extends State<MapPage> {
 
+  int distance = 0;
+  bool get = false;
+
   acc.Acceralation acceralation;
   List<acc.Acceralation> acceralation_list = [];
 
@@ -33,6 +40,9 @@ class _MapPageState extends State<MapPage> {
 
   //x,y,z xは縦軸，yは横軸，zは奥行き
   //gyro : デバイスの回転を示す
+
+  AnimationController _controller;
+  int _radioValue;
 
   @override
   void initState() {
@@ -58,8 +68,8 @@ class _MapPageState extends State<MapPage> {
               children: <Widget>[
 
                 Container(
-                    width: 400.0,
-                    height: 400.0,
+                    width: 300.0,
+                    height: 300.0,
                     decoration: BoxDecoration(
                       image: DecorationImage(
                         image: NetworkImage(
@@ -89,13 +99,31 @@ class _MapPageState extends State<MapPage> {
                     Padding(padding: EdgeInsets.all(10)),
 
                     Text("歩数 : ${step_sum}",
-                      style: TextStyle(fontSize: 30),
+                      style: TextStyle(fontSize: 20),
                     ),
                   ],
                 ),
 
                 
-                Padding(padding: EdgeInsets.all(30)),
+                Padding(padding: EdgeInsets.all(10)),
+
+                Row(
+                  children: <Widget>[
+                    Padding(padding: EdgeInsets.all(30)),
+
+                    Container(
+                      child: Image.asset("lib/images/tresure.jpg",
+                    height: 100,
+                    width: 100,
+                    fit: BoxFit.fitWidth,)
+                    ),
+
+                    Padding(padding: EdgeInsets.all(10)),
+
+                    Text("お宝までの距離 : ${distance}",
+                    style: TextStyle(fontSize: 20),)
+                  ],
+                ),
               ],
             ),
         ),
@@ -133,6 +161,7 @@ class _MapPageState extends State<MapPage> {
     acceralation_list.clear();
   }
 
+
 }
 
 
@@ -148,6 +177,8 @@ Future<Post> fetchPost() async {
     throw Exception('Failed to load post');
   }
 }
+
+//TODO ngrokは更新される
 
 void UserRegistRequest() async {
   String url = "http://d11f9a85.ngrok.io/location/update";
@@ -175,3 +206,5 @@ void UserStepRequest(Timer timer) async {
   print(json.decode(resp.body));
 //  print(resp.body);
 }
+
+
