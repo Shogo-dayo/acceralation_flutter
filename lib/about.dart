@@ -1,9 +1,9 @@
-import 'package:acceralation_flutter/main.dart';
 import "package:flutter/material.dart";
 import 'package:http/http.dart' as http;
-import 'post.dart';
 import 'dart:convert';
 
+//プロフィールページ
+//location/update
 
 class AboutPage extends StatefulWidget{
   @override
@@ -13,16 +13,15 @@ class AboutPage extends StatefulWidget{
 
 class _AboutPageState extends State<AboutPage> with SingleTickerProviderStateMixin {
 
-  bool _status = false;
+  bool _status = true;
   final FocusNode myFocusNode = FocusNode();
 
   //globalkey でformの入力を行う
-
   final _formKey = GlobalKey<FormState>();
 
   String name = "";
   String tel = "";
-  String url = "http://d11f9a85.ngrok.io/location/update";
+  String url = "http://e739fe18.ngrok.io/location/update";
 
   TextEditingController user = TextEditingController();
 

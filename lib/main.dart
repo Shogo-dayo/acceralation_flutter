@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:bottom_navy_bar/bottom_navy_bar.dart';
-import './flight.dart' as flightPage;
+import './phase.dart' as phasePage;
 import './about.dart' as aboutPage;
-import './map.dart' as mapPage;
+import './step.dart' as StepPage;
 
 void main() => runApp(MyApp());
 
@@ -49,15 +49,12 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: Text("Dowsing in Airport"),
-        ),
 
         body: PageView(
           controller: _pageController,
           children: <Widget>[
-            flightPage.FlightPage(),
-            mapPage.MapPage(),
+            phasePage.PhasePage(),
+            StepPage.StepPage(),
             aboutPage.AboutPage(),
           ],
         ),
@@ -69,25 +66,25 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
               setState(() {
                 _page = index;
                 _pageController.animateToPage(index,
-                    duration: Duration(milliseconds: 300), curve: Curves.ease);
+                    duration: Duration(milliseconds: 150), curve: Curves.ease);
               }),
 
           items: [
             BottomNavyBarItem(
               icon: Icon(Icons.schedule),
-              title: Text('Stepper'),
+              title: Text('Phase'),
               activeColor: Colors.red,
             ),
 
             BottomNavyBarItem(
                 icon: Icon(Icons.map),
-                title: Text('Dowsing'),
+                title: Text('Step'),
                 activeColor: Colors.blue
             ),
 
             BottomNavyBarItem(
                 icon: Icon(Icons.people),
-                title: Text('Users'),
+                title: Text('Pfofile'),
                 activeColor: Colors.purpleAccent
             ),
           ],

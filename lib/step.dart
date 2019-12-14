@@ -11,6 +11,9 @@ import 'package:flutter_compass/flutter_compass.dart';
 import 'package:vibration/vibration.dart';
 
 
+//足跡ページ
+//location/update
+
 int step_sum = 0;
 int step_now = 0;
 String name = 'user_1';
@@ -19,16 +22,17 @@ String name = 'user_1';
 //TODO trueの場合のファンクションを考える
 
 
-class MapPage extends StatefulWidget {
+class StepPage extends StatefulWidget {
 
   @override
-  _MapPageState createState() => _MapPageState();
+  _StepPageState createState() => _StepPageState();
 }
 
-class _MapPageState extends State<MapPage> {
+class _StepPageState extends State<StepPage> {
 
   int distance = 0;
   bool get = false;
+  double _direction;
 
   acc.Acceralation acceralation;
   List<acc.Acceralation> acceralation_list = [];
@@ -47,9 +51,16 @@ class _MapPageState extends State<MapPage> {
     super.initState();
     print("init start");
     getacceralation();
-    Timer.periodic(Duration(milliseconds: 500), getData);
+    Timer.periodic(Duration(milliseconds: 500), getStep);
     Timer.periodic(Duration(milliseconds: 500), UserStepRequest);
     _vibrate();
+    FlutterCompass.events.listen((double direction) {
+      setState(() {
+        _direction = direction;
+        debugPrint("$_direction");
+      });
+    });
+
   }
 
   @override
@@ -61,9 +72,9 @@ class _MapPageState extends State<MapPage> {
 
     return MaterialApp(
         debugShowCheckedModeBanner: false,
-      home: Scaffold(
-        body: Center(
-          child: Column(
+        home: Scaffold(
+          body: Center(
+            child: Column(
               children: <Widget>[
                 Padding(padding: EdgeInsets.all(50)),
 
@@ -86,7 +97,7 @@ class _MapPageState extends State<MapPage> {
                   ],
                 ),
 
-                
+
                 Padding(padding: EdgeInsets.all(30)),
 
                 Row(
@@ -94,23 +105,23 @@ class _MapPageState extends State<MapPage> {
                     Padding(padding: EdgeInsets.all(30)),
 
                     Container(
-                      child: Image.asset("lib/images/tresure.jpg",
-                    height: 100,
-                    width: 100,
-                    fit: BoxFit.fitWidth,)
+                        child: Image.asset("lib/images/tresure.jpg",
+                          height: 100,
+                          width: 100,
+                          fit: BoxFit.fitWidth,)
                     ),
 
                     Padding(padding: EdgeInsets.all(10)),
 
                     Text("お宝までの距離 : ${distance}",
-                    style: TextStyle(fontSize: 20),)
+                      style: TextStyle(fontSize: 20),)
                     //TODO  distanceが近いときに通知する
                   ],
                 ),
               ],
             ),
-        ),
-      )
+          ),
+        )
     );
   }
 
@@ -138,7 +149,7 @@ class _MapPageState extends State<MapPage> {
   }
 
 
-  void getData(Timer timer){
+  void getStep(Timer timer){
     step_now = acc.getStep(acceralation_list);
     step_sum += step_now;
     acceralation_list.clear();
@@ -169,7 +180,7 @@ Future<Post> fetchPost() async {
 //TODO ngrokは更新される
 
 void UserRegistRequest() async {
-  String url = "http://d11f9a85.ngrok.io/location/update";
+  String url = "http://e739fe18.ngrok.io/location/update";
   Map<String, String> headers = {'content-type': 'application/json'};
   String body = json.encode({'name':'user_1','x':3,'y':4,'step':1});
   http.Response resp = await http.post(url, headers: headers, body: body);
@@ -184,7 +195,7 @@ void UserRegistRequest() async {
 
 //これでサーバにデータを送信
 void UserStepRequest(Timer timer) async {
-  String url = "http://d11f9a85.ngrok.io/location/update";
+  String url = "http://e739fe18.ngrok.io/location/update";
   Map<String, String> headers = {'content-type': 'application/json'};
   String body = json.encode({'name':name,'step':step_now});
   http.Response resp = await http.post(url, headers: headers, body: body);

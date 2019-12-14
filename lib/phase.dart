@@ -1,64 +1,61 @@
-import 'package:acceralation_flutter/main.dart';
-import "package:flutter/material.dart";
 import "package:flutter/material.dart";
 import 'package:http/http.dart' as http;
-import 'post.dart';
 import 'dart:convert';
-import './about.dart';
 
+//phaseページ
+//location/phase
 
-class FlightPage extends StatefulWidget {
+class PhasePage extends StatefulWidget {
   @override
-  FlightPageState createState() => FlightPageState();
+  PhasePageState createState() => PhasePageState();
 }
 
-class FlightPageState extends State<FlightPage> {
+class PhasePageState extends State<PhasePage> {
 
   bool _status = true;
   final FocusNode myFocusNode = FocusNode();
 
 
   // init the step to 0th position
-  int current_step = 0;
+  int current_phase = 0;
 
   //TODO currentstepの状態で足跡を制御する.
-  String url = "http://d11f9a85.ngrok.io/location/phase";
+  String url = "http://e739fe18.ngrok.io/location/phase";
 
-  TextEditingController currentstep = TextEditingController();
+  TextEditingController currentPhase = TextEditingController();
 
   //サーバにnameと電話番号を送る
   //TODO ngrokは更新される
 
-  getData(String count_step) async{
-    String profile = url +  count_step;
-    var res = await http.get(profile,headers:{"Accept":"application/json"});
+  getData(String count_phase) async {
+    String phase = url + count_phase;
+    var res = await http.get(phase, headers: {"Accept": "application/json"});
     var resBody = json.decode(res.body);
-    current_step = resBody["curren_step"];
+    current_phase = resBody["current_phase"];
     setState(() {
-
-      print("step success");
+      print("phase success");
     });
   }
 
   List<Step> my_steps = [
     Step(
       // Title of the Step
-        title: Text("空港に向かっていますか"),
-        // Content, it can be any widget here. Using basic Text for this example
-        content: Text("", style: TextStyle(fontSize: 10),),
-        isActive: true,),
+      title: Text("空港に向かっていますか"),
+      // Content, it can be any widget here. Using basic Text for this example
+      content: Text("", style: TextStyle(fontSize: 10),),
+      isActive: true,),
     Step(
         title: Text("あなたはチェックインを終えましたか"),
-        content: Text("",style: TextStyle(fontSize: 10)),
+        content: Text("", style: TextStyle(fontSize: 10)),
         // You can change the style of the step icon i.e number, editing, etc.
         isActive: true),
     Step(
         title: Text("あなたは検査を終えましたか"),
-        content: Text("",style: TextStyle(fontSize: 10)),
+        content: Text("", style: TextStyle(fontSize: 10)),
         isActive: true),
     Step(
         title: Text("搭乗しましたか"),
-        content: Text("",style: TextStyle(fontSize: 10)),
+        content: Text("", style: TextStyle(fontSize: 10)),
         isActive: true),
   ];
 
@@ -78,7 +75,7 @@ class FlightPageState extends State<FlightPage> {
                 children: <Widget>[
                   Padding(
                       padding: EdgeInsets.only(
-                          left: 45.0, right: 25.0, top: 10.0),
+                          left: 45.0, right: 25.0, top: 50.0),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment
                             .spaceBetween,
@@ -132,12 +129,11 @@ class FlightPageState extends State<FlightPage> {
           ),
 
 
-
           Column(
             children: <Widget>[
               Container(
-                alignment: Alignment(-0.7,0.3),
-                child : Text("Your Flight Step",style: TextStyle(
+                alignment: Alignment(-0.7, 0.3),
+                child: Text("Your Flight Phase", style: TextStyle(
                     fontSize: 16.0,
                     fontWeight: FontWeight.bold),
                 ),
@@ -145,7 +141,7 @@ class FlightPageState extends State<FlightPage> {
 
               Stepper(
                 // Using a variable here for handling the currentStep
-                currentStep: this.current_step,
+                currentStep: this.current_phase,
                 // List the steps you would like to have
                 steps: my_steps,
                 // Define the type of Stepper style
@@ -158,17 +154,14 @@ class FlightPageState extends State<FlightPage> {
                   setState(() {
                     // update the variable handling the current step value
                     // jump to the tapped step
-                    current_step = step;
-                    debugPrint("Current_Step : ${current_step}");
+                    current_phase = step;
+                    debugPrint("Current_Phase : ${current_phase}");
 
                     //TODO ここで,現時点でのステップをサーバに送る
-                    getData(currentstep.text);
-
-
-
+                    getData(currentPhase.text);
                   });
                   // Log function call
-                  print("onStepTapped : " + step.toString());
+                  print("onPhaseTapped : " + step.toString());
                 },
 
 
@@ -177,14 +170,14 @@ class FlightPageState extends State<FlightPage> {
                   setState(() {
                     // update the variable handling the current step value
                     // going back one step i.e subtracting 1, until its 0
-                    if (current_step > 0) {
-                      current_step = current_step - 1;
+                    if (current_phase > 0) {
+                      current_phase = current_phase - 1;
                     } else {
-                      current_step = 0;
+                      current_phase = 0;
                     }
                   });
                   // Log function call
-                  print("onStepCancel : " + current_step.toString());
+                  print("onPhaseCancel : " + current_phase.toString());
                 },
                 // On hitting continue button, change the state
 
@@ -193,14 +186,14 @@ class FlightPageState extends State<FlightPage> {
                   setState(() {
                     // update the variable handling the current step value
                     // going back one step i.e adding 1, until its the length of the step
-                    if (current_step < my_steps.length - 1) {
-                      current_step = current_step + 1;
+                    if (current_phase < my_steps.length - 1) {
+                      current_phase = current_phase + 1;
                     } else {
-                      current_step = 0;
+                      current_phase = 0;
                     }
                   });
                   // Log function call
-                  print("onStepContinue : " + current_step.toString());
+                  print("onPhaseContinue : " + current_phase.toString());
                 },
               )
             ],
