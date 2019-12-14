@@ -38,7 +38,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
   void initState() {
     super.initState();
     _pageController = PageController();
-    print('1');
+    print('12345');
   }
 
   @override
