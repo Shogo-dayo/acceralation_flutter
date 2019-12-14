@@ -255,6 +255,7 @@ class _AboutPageState extends State<AboutPage> with SingleTickerProviderStateMix
 
                         //TODO ここでユーザ名をサーバに送る
 
+
                       });
                     },
                     shape: RoundedRectangleBorder(

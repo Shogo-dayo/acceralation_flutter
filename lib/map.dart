@@ -5,6 +5,7 @@ import "acceralation.dart" as acc;
 import 'package:http/http.dart' as http;
 import 'post.dart';
 import 'dart:convert';
+import 'package:flutter_compass/flutter_compass.dart';
 
 
 int step_sum = 0;

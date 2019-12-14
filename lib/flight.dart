@@ -14,11 +14,13 @@ class FlightPageState extends State<FlightPage> {
 
   //globalkey でformの入力を行う
 
-  final _formKey = GlobalKey<FormState>();
-
+  final _Key = GlobalKey<State>();
 
   // init the step to 0th position
   int current_step = 0;
+
+  //TODO currentstepの状態で足跡を制御する.
+
   List<Step> my_steps = [
     Step(
       // Title of the Step
