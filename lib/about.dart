@@ -118,7 +118,7 @@ class _AboutPageState extends State<AboutPage> with SingleTickerProviderStateMix
                                     mainAxisSize: MainAxisSize.min,
                                     children: <Widget>[
                                       Text(
-                                        'Parsonal Information',
+                                        'Personal Information',
                                         style: TextStyle(
                                             fontSize: 18.0,
                                             fontWeight: FontWeight.bold),
@@ -162,6 +162,7 @@ class _AboutPageState extends State<AboutPage> with SingleTickerProviderStateMix
                                 children: <Widget>[
                                   Flexible(
                                     child: TextField(
+                                      key: _formKey,
                                       decoration: InputDecoration(
                                         hintText: "Enter Your Name",
                                       ),
@@ -210,47 +211,6 @@ class _AboutPageState extends State<AboutPage> with SingleTickerProviderStateMix
                                 ],
                               )),
 
-                          Padding(
-                            padding: EdgeInsets.only(
-                                left: 25.0, right: 25.0, top: 25.0),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.max,
-                              children: <Widget>[
-                                Column(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: <Widget>[
-                                    Text(
-                                      'Flight Date',
-                                      style: TextStyle(
-                                          fontSize: 16.0,
-                                          fontWeight: FontWeight.bold),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-
-                          Padding(
-                              padding: EdgeInsets.only(
-                                  left: 25.0, right: 25.0, top: 2.0),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.max,
-                                children: <Widget>[
-                                  Flexible(
-                                    child: TextField(
-                                      decoration: InputDecoration(
-                                        hintText: "Enter Flight Date",
-                                      ),
-                                      enabled: !_status,
-                                      autofocus: !_status,
-
-                                    ),
-                                  ),
-                                ],
-                              )),
-
                           !_status ? _getActionButtons() : Container(),
                         ],
                       ),
@@ -291,6 +251,10 @@ class _AboutPageState extends State<AboutPage> with SingleTickerProviderStateMix
                       setState(() {
                         _status = true;
                         FocusScope.of(context).requestFocus(FocusNode());
+                        debugPrint("Name : ${_formKey}");
+
+                        //TODO ここでユーザ名をサーバに送る
+
                       });
                     },
                     shape: RoundedRectangleBorder(

@@ -52,9 +52,9 @@ int getStep(List<Acceralation> acc){
   orgList(putTogether);
   step = checkStep(organizeList);
 
-//  print(putTogether);
-//  print(organizeList);
-//  print("step = ${step}");
+  print(putTogether);
+  print(organizeList);
+  print("step = ${step}");
 
   putTogether.clear();
   organizeList.clear();

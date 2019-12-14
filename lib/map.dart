@@ -7,6 +7,14 @@ import 'post.dart';
 import 'dart:convert';
 
 
+int step_sum = 0;
+int step_now = 0;
+String name = 'user_1';
+
+//TODO サーバからはお宝があった場合true,お宝がなかった場合false
+//TODO trueの場合のファンクションを考える
+
+
 class MapPage extends StatefulWidget {
 
   @override
@@ -15,8 +23,6 @@ class MapPage extends StatefulWidget {
 
 class _MapPageState extends State<MapPage> {
 
-  Future<Post> post;
-
   acc.Acceralation acceralation;
   List<acc.Acceralation> acceralation_list = [];
 
@@ -24,7 +30,6 @@ class _MapPageState extends State<MapPage> {
 
   List<StreamSubscription<dynamic>> _streamSubscriptions = <StreamSubscription<dynamic>>[];
 
-  int step = 0;
   //x,y,z xは縦軸，yは横軸，zは奥行き
   //gyro : デバイスの回転を示す
 
@@ -33,8 +38,8 @@ class _MapPageState extends State<MapPage> {
     super.initState();
     print("init start");
     getacceralation();
-    post = fetchPost();
-    Timer.periodic(const Duration(seconds: 2), getData);
+    Timer.periodic(const Duration(milliseconds: 500), getData);
+    Timer.periodic(const Duration(milliseconds: 500), UserStepRequest);
   }
 
   @override
@@ -50,6 +55,19 @@ class _MapPageState extends State<MapPage> {
         body: Center(
           child: Column(
               children: <Widget>[
+
+                Container(
+                    width: 400.0,
+                    height: 400.0,
+                    decoration: BoxDecoration(
+                      image: DecorationImage(
+                        image: NetworkImage(
+                            "https://media.qikeru.me/wp-content/uploads/2015/01/zahyou2.png"),
+                        fit: BoxFit.cover,
+                      ),
+                    )
+                ),
+
                 Row(
                   children: <Widget>[
                     Padding(padding: EdgeInsets.all(30)),
@@ -69,7 +87,7 @@ class _MapPageState extends State<MapPage> {
 
                     Padding(padding: EdgeInsets.all(10)),
 
-                    Text("歩数 : ${step}",
+                    Text("歩数 : ${step_sum}",
                       style: TextStyle(fontSize: 30),
                     ),
                   ],
@@ -77,18 +95,6 @@ class _MapPageState extends State<MapPage> {
 
                 
                 Padding(padding: EdgeInsets.all(30)),
-
-                Container(
-                    width: 400.0,
-                    height: 400.0,
-                    decoration: BoxDecoration(
-                      image: DecorationImage(
-                        image: NetworkImage(
-                            "https://media.qikeru.me/wp-content/uploads/2015/01/zahyou2.png"),
-                        fit: BoxFit.cover,
-                      ),
-                    )
-                ),
               ],
             ),
         ),
@@ -119,17 +125,15 @@ class _MapPageState extends State<MapPage> {
     }));
   }
 
+
   void getData(Timer timer){
-//    acceralation_list.forEach((e){
-//      print(e.getStep(e));
-//    });
-    step += acc.getStep(acceralation_list);
+    step_now = acc.getStep(acceralation_list);
+    step_sum += step_now;
     acceralation_list.clear();
-
-
   }
 
 }
+
 
 Future<Post> fetchPost() async {
   final response =
@@ -142,4 +146,31 @@ Future<Post> fetchPost() async {
     // If that response was not OK, throw an error.
     throw Exception('Failed to load post');
   }
+}
+
+void UserRegistRequest() async {
+  String url = "http://d11f9a85.ngrok.io/location/update";
+  Map<String, String> headers = {'content-type': 'application/json'};
+  String body = json.encode({'name':'user_1','x':3,'y':4,'step':1});
+  http.Response resp = await http.post(url, headers: headers, body: body);
+
+  if (resp.statusCode != 200) {
+    return;
+  }
+//  print(json.decode(resp.body));
+//  print(resp.body);
+}
+
+
+//これでサーバにデータを送信
+void UserStepRequest(Timer timer) async {
+  String url = "http://d11f9a85.ngrok.io/location/update";
+  Map<String, String> headers = {'content-type': 'application/json'};
+  String body = json.encode({'name':name,'step':step_now});
+  http.Response resp = await http.post(url, headers: headers, body: body);
+  if (resp.statusCode != 200) {
+    return;
+  }
+  print(json.decode(resp.body));
+//  print(resp.body);
 }
