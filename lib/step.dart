@@ -10,6 +10,8 @@ import 'package:flutter_compass/flutter_compass.dart';
 
 import 'package:vibration/vibration.dart';
 
+import 'package:geolocator/geolocator.dart';
+
 
 //足跡ページ
 //location/update
@@ -30,7 +32,7 @@ class StepPage extends StatefulWidget {
 
 class _StepPageState extends State<StepPage> {
 
-  int distance = 0;
+  int distance = 99999;
   bool get = false;
   double _direction;
 
@@ -46,6 +48,8 @@ class _StepPageState extends State<StepPage> {
 
   AnimationController _controller;
 
+  Position position;
+
   @override
   void initState() {
     super.initState();
@@ -60,6 +64,7 @@ class _StepPageState extends State<StepPage> {
         debugPrint("$_direction");
       });
     });
+    _getLocation(context);
 
   }
 
@@ -69,6 +74,8 @@ class _StepPageState extends State<StepPage> {
         v.toStringAsFixed(1))?.toList();
     final String gyro_x = _gyroscopeValues[0].toStringAsFixed(2);
     final String gyro_y = _gyroscopeValues[1].toStringAsFixed(2);
+
+    debugPrint("$position");
 
     return MaterialApp(
         debugShowCheckedModeBanner: false,
@@ -114,16 +121,25 @@ class _StepPageState extends State<StepPage> {
                     Padding(padding: EdgeInsets.all(10)),
 
                     Text("お宝までの距離 : ${distance}",
-                      style: TextStyle(fontSize: 20),)
+                      style: TextStyle(fontSize: 18),),
                     //TODO  distanceが近いときに通知する
                   ],
                 ),
+
+                Padding(padding: EdgeInsets.all(30)),
+
+                Text("current_location : ${position}",
+                style: TextStyle(fontSize: 18),),
+
+
               ],
             ),
           ),
         )
     );
   }
+
+  //positionにcurrentlocation内臓されている
 
   @override
   void dispose() {
@@ -159,6 +175,15 @@ class _StepPageState extends State<StepPage> {
     if (distance == 0) {
       Vibration.vibrate();
     }
+  }
+
+  Future<void> _getLocation(context) async {
+    Position _currentPosition = await Geolocator()
+        .getCurrentPosition(desiredAccuracy: LocationAccuracy.high); // ここで精度を「high」に指定している
+    print(_currentPosition);
+    setState(() {
+      position = _currentPosition;
+    });
   }
 
 }

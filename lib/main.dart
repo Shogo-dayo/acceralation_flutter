@@ -53,9 +53,9 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
         body: PageView(
           controller: _pageController,
           children: <Widget>[
+            aboutPage.AboutPage(),
             phasePage.PhasePage(),
             StepPage.StepPage(),
-            aboutPage.AboutPage(),
           ],
         ),
 
@@ -70,6 +70,13 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
               }),
 
           items: [
+
+            BottomNavyBarItem(
+                icon: Icon(Icons.people),
+                title: Text('Pfofile'),
+                activeColor: Colors.purpleAccent
+            ),
+
             BottomNavyBarItem(
               icon: Icon(Icons.schedule),
               title: Text('Phase'),
@@ -82,11 +89,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                 activeColor: Colors.blue
             ),
 
-            BottomNavyBarItem(
-                icon: Icon(Icons.people),
-                title: Text('Pfofile'),
-                activeColor: Colors.purpleAccent
-            ),
+
           ],
         )
     );

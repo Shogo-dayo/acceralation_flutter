@@ -25,19 +25,13 @@ class _AboutPageState extends State<AboutPage> with SingleTickerProviderStateMix
 
   TextEditingController user = TextEditingController();
 
-  //サーバにnameと電話番号を送る
+  int count = 0;
+  String _message = 'Tap this button.';
+
+  //TODO サーバにnameと電話番号を送る
   //TODO ngrokは更新される
 
-  getData(String username) async{
-    String profile = url +  username;
-    var res = await http.get(profile,headers:{"Accept":"application/json"});
-    var resBody = json.decode(res.body);
-    name = resBody["name"];
-    tel = resBody["tel"];
-    setState(() {
-      print("success");
-    });
-  }
+
 
   @override
   void initState() {
@@ -183,7 +177,6 @@ class _AboutPageState extends State<AboutPage> with SingleTickerProviderStateMix
                                 children: <Widget>[
                                   Flexible(
                                     child: TextField(
-                                      controller: user,
                                       decoration: InputDecoration(
                                         hintText: "Enter Your Name",
                                       ),
@@ -233,6 +226,60 @@ class _AboutPageState extends State<AboutPage> with SingleTickerProviderStateMix
                               )),
 
                           !_status ? _getActionButtons() : Container(),
+
+                          Padding(padding: EdgeInsets.all(30)),
+
+                          Row(
+                            children: <Widget>[
+                              Padding(padding: EdgeInsets.all(45)),
+
+                              SizedBox.fromSize(
+                                size: Size(75, 75), // button width and height
+                                child: ClipOval(
+                                  child: Material(
+                                    color: Colors.orange, // button color
+                                    child: InkWell(
+                                      splashColor: Colors.green, // splash color
+                                      onTap: () {
+                                        _onPressedTEL();
+                                      }, // button pressed
+                                      child: Column(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: <Widget>[
+                                          Icon(Icons.call), // icon
+                                          Text("Call"), // text
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+
+                              Padding(padding: EdgeInsets.all(45)),
+
+                              SizedBox.fromSize(
+                                size: Size(75, 75), // button width and height
+                                child: ClipOval(
+                                  child: Material(
+                                    color: Colors.orange, // button color
+                                    child: InkWell(
+                                      splashColor: Colors.green, // splash color
+                                      onTap: () {
+                                        _onPressedSMS();
+                                      }, // button pressed
+                                      child: Column(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: <Widget>[
+                                          Icon(Icons.message), // icon
+                                          Text("SMS"), // text
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
                         ],
                       ),
                     ),
@@ -272,11 +319,11 @@ class _AboutPageState extends State<AboutPage> with SingleTickerProviderStateMix
                       setState(() {
                         _status = true;
                         FocusScope.of(context).requestFocus(FocusNode());
-                        debugPrint("Name : ${user}");
+                        debugPrint("Name : ${name}");
 
                         //ここでユーザ名をサーバに送る
                         //ここでのngrokはok
-                        getData(user.text);
+                        UserAboutRequest(name);
                       });
                     },
                     shape: RoundedRectangleBorder(
@@ -306,9 +353,27 @@ class _AboutPageState extends State<AboutPage> with SingleTickerProviderStateMix
             ),
             flex: 2,
           ),
+
+
         ],
       ),
     );
+  }
+
+
+
+  void _onPressedTEL() {
+    setState(() {
+      ++count;
+      _message = 'Tap count $count';
+    });
+  }
+
+  void _onPressedSMS() {
+    setState(() {
+      ++count;
+      _message = 'Tap count $count';
+    });
   }
 
   Widget _getEditIcon() {
@@ -329,5 +394,17 @@ class _AboutPageState extends State<AboutPage> with SingleTickerProviderStateMix
       },
     );
   }
+}
+
+void UserAboutRequest(String name) async {
+  String url = "http://e739fe18.ngrok.io/location/update";
+  Map<String, String> headers = {'content-type': 'application/json'};
+  String body = json.encode({'name':"name",'tel':"tel1"});
+  http.Response resp = await http.post(url, headers: headers, body: body);
+  if (resp.statusCode != 200) {
+    return;
+  }
+  print(json.decode(resp.body));
+//  print(resp.body);
 }
 

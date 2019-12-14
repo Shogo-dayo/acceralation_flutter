@@ -20,22 +20,10 @@ class PhasePageState extends State<PhasePage> {
   int current_phase = 0;
 
   //TODO currentstepの状態で足跡を制御する.
-  String url = "http://e739fe18.ngrok.io/location/phase";
-
-  TextEditingController currentPhase = TextEditingController();
-
-  //サーバにnameと電話番号を送る
+  //TODO サーバにnameとcurrent_stepを送る
   //TODO ngrokは更新される
 
-  getData(String count_phase) async {
-    String phase = url + count_phase;
-    var res = await http.get(phase, headers: {"Accept": "application/json"});
-    var resBody = json.decode(res.body);
-    current_phase = resBody["current_phase"];
-    setState(() {
-      print("phase success");
-    });
-  }
+
 
   List<Step> my_steps = [
     Step(
@@ -120,7 +108,8 @@ class PhasePageState extends State<PhasePage> {
                             ),
                           ),
                         ],
-                      )),
+                      ),
+                  ),
 
                   !_status ? _getActionButtons() : Container(),
                 ],
@@ -151,17 +140,18 @@ class PhasePageState extends State<PhasePage> {
                 // Know the step that is tapped
                 onStepTapped: (step) {
                   // On hitting step itself, change the state and jump to that step
-                  setState(() {
                     // update the variable handling the current step value
                     // jump to the tapped step
                     current_phase = step;
+
+
+                  // Log function call
+                    print("onPhaseTapped : " + step.toString());
+
                     debugPrint("Current_Phase : ${current_phase}");
 
                     //TODO ここで,現時点でのステップをサーバに送る
-                    getData(currentPhase.text);
-                  });
-                  // Log function call
-                  print("onPhaseTapped : " + step.toString());
+                    UserPhaseRequest(current_phase);
                 },
 
 
@@ -176,6 +166,12 @@ class PhasePageState extends State<PhasePage> {
                       current_phase = 0;
                     }
                   });
+
+                  debugPrint("Current_Phase : ${current_phase}");
+
+                  //TODO ここで,現時点でのステップをサーバに送る
+                  UserPhaseRequest(current_phase);
+
                   // Log function call
                   print("onPhaseCancel : " + current_phase.toString());
                 },
@@ -194,6 +190,12 @@ class PhasePageState extends State<PhasePage> {
                   });
                   // Log function call
                   print("onPhaseContinue : " + current_phase.toString());
+
+                  debugPrint("Current_Phase : ${current_phase}");
+
+                  //TODO ここで,現時点でのステップをサーバに送る
+                  UserPhaseRequest(current_phase);
+
                 },
               )
             ],
@@ -274,4 +276,17 @@ class PhasePageState extends State<PhasePage> {
       },
     );
   }
+}
+
+//これでサーバにデータを送信
+void UserPhaseRequest(int current_phase) async {
+  String url = "http://e739fe18.ngrok.io/location/phase";
+  Map<String, String> headers = {'content-type': 'application/json'};
+  String body = json.encode({'name':"user_1",'step':current_phase});
+  http.Response resp = await http.post(url, headers: headers, body: body);
+  if (resp.statusCode != 200) {
+    return;
+  }
+  print(json.decode(resp.body));
+//  print(resp.body);
 }
