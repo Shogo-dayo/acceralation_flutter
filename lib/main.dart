@@ -73,7 +73,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
 
             BottomNavyBarItem(
                 icon: Icon(Icons.people),
-                title: Text('Pfofile'),
+                title: Text('Profile'),
                 activeColor: Colors.purpleAccent
             ),
 

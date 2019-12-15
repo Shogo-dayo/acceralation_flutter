@@ -277,7 +277,7 @@ class PhasePageState extends State<PhasePage> {
 void UserPhaseRequest(int current_phase) async {
 //  debugPrint("Current_Phase : ${current_phase}");
   if(name == null) return;
-  String url = "http://c1d204d8.ngrok.io/location/phase";
+  String url = "http://38d14120.ngrok.io/location/phase";
   Map<String, String> headers = {'content-type': 'application/json'};
   String body = json.encode({'name':name,'current_phase':current_phase});
   http.Response resp = await http.post(url, headers: headers, body: body);

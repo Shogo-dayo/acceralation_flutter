@@ -88,6 +88,7 @@ class _StepPageState extends State<StepPage> {
     calucalateDistance();
     //バイブレーション機能
     _vibrate();
+
     Timer.periodic(Duration(milliseconds: 1000), getStep);
     Timer.periodic(Duration(milliseconds: 1000), UserStepRequest);
 
@@ -104,6 +105,7 @@ class _StepPageState extends State<StepPage> {
       debugShowCheckedModeBanner: false,
 
       home: Scaffold(
+        appBar: AppBar(title: Text("Dowsing Start"),backgroundColor: Colors.blue,),
         body: Center(
           child: Column(
             children: <Widget>[
@@ -115,8 +117,8 @@ class _StepPageState extends State<StepPage> {
 
                   Container(
                       child: Image.asset("lib/images/step.png",
-                        height: 100,
-                        width: 100,
+                        height: 110,
+                        width: 110,
                         fit: BoxFit.fitWidth,)
                   ),
 
@@ -137,8 +139,8 @@ class _StepPageState extends State<StepPage> {
 
                   Container(
                       child: Image.asset("lib/images/tresure.jpg",
-                        height: 100,
-                        width: 100,
+                        height: 110,
+                        width: 110,
                         fit: BoxFit.fitWidth,)
                   ),
 
@@ -193,6 +195,8 @@ class _StepPageState extends State<StepPage> {
           createDialog();
         else
           return;
+
+
       });
     }));
   }
@@ -238,7 +242,7 @@ class _StepPageState extends State<StepPage> {
       context: context,
       builder: (BuildContext context) =>
           CupertinoAlertDialog(
-            title: Text("至急！！！！！！！！"),
+            title: Text("緊急！！！！！！！！"),
             content: Text(""),
             actions: <Widget>[
               CupertinoDialogAction(
@@ -271,7 +275,7 @@ Future<Post> fetchPost() async {
 //TODO ngrokは更新される
 
 void UserRegistRequest() async {
-  String url = "http://c1d204d8.ngrok.io/location/update";
+  String url = "http://38d14120.ngrok.io/location/update";
   Map<String, String> headers = {'content-type': 'application/json'};
   String body = json.encode({'name':'user_1','x':3,'y':4,'step':1});
   http.Response resp = await http.post(url, headers: headers, body: body);
@@ -287,7 +291,7 @@ void UserRegistRequest() async {
 //これでサーバにユーザのstepデータを送信
 void UserStepRequest(Timer timer) async {
   if(name == null) return;
-  String url = "http://c1d204d8.ngrok.io/location/update";
+  String url = "http://38d14120.ngrok.io/location/update";
   Map<String, String> headers = {'content-type': 'application/json'};
   String body = json.encode({'name':name,'step':step_now, "direction" : getDirection(_direction)});
   http.Response resp = await http.post(url, headers: headers, body: body);
@@ -321,14 +325,14 @@ String getDirection(double dir){
 }
 
 void callNear() {
-  FlutterRingtonePlayer.playNotification(volume:1 , looping:false);
+  FlutterRingtonePlayer.playNotification(volume:10 , looping:false);
 }
 
 void callSoso() {
-  FlutterRingtonePlayer.playNotification(volume:0.1 , looping:false);
+  FlutterRingtonePlayer.playNotification(volume:1 , looping:false);
 }
 
 void callFar() {
-  FlutterRingtonePlayer.playNotification(volume:0.01 , looping:false);
+  FlutterRingtonePlayer.playNotification(volume:0.1 , looping:false);
 
 }
