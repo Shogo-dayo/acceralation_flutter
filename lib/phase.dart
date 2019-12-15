@@ -6,6 +6,7 @@ import 'dart:convert';
 //location/phase
 String name;
 
+
 class PhasePage extends StatefulWidget {
   @override
   PhasePageState createState() => PhasePageState();
@@ -20,6 +21,9 @@ class PhasePageState extends State<PhasePage> {
   // init the step to 0th position
   int current_phase = 0;
   final _key = GlobalKey<State>();
+
+
+
 
 
   //TODO currentstepの状態で足跡を制御する.
@@ -222,6 +226,7 @@ class PhasePageState extends State<PhasePage> {
             ),
             flex: 2,
           ),
+
           Expanded(
             child: Padding(
               padding: EdgeInsets.only(left: 10.0),
@@ -267,19 +272,21 @@ class PhasePageState extends State<PhasePage> {
   }
 }
 
+
 //これでサーバにデータを送信
 void UserPhaseRequest(int current_phase) async {
-  debugPrint("Current_Phase : ${current_phase}");
+//  debugPrint("Current_Phase : ${current_phase}");
   if(name == null) return;
   String url = "http://c1d204d8.ngrok.io/location/phase";
   Map<String, String> headers = {'content-type': 'application/json'};
   String body = json.encode({'name':name,'current_phase':current_phase});
   http.Response resp = await http.post(url, headers: headers, body: body);
   if (resp.statusCode != 200) {
-    print("sucesssssssssssssssssss");
     return;
   }
-  print(json.decode(resp.body));
+
+
+  //print(json.decode(resp.body));
 //  print(resp.body);
 }
 

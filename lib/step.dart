@@ -20,11 +20,16 @@ int step_sum = 0;
 int step_now = 0;
 String name;
 double _direction;
+int tresure_distance;
+bool tresure_bool;
 
 double north = 45.0;
 double west = 135.0;
 double south = 225.0;
 double east = 315.0;
+
+
+Map<String, dynamic> tresure_info;
 
 //TODO サーバからはお宝があった場合true,お宝がなかった場合false
 //TODO trueの場合のファンクションを考える
@@ -38,7 +43,6 @@ class StepPage extends StatefulWidget {
 
 class _StepPageState extends State<StepPage> {
 
-  int distance = 99999;
   bool get = false;
 
   acc.Acceralation acceralation;
@@ -81,10 +85,9 @@ class _StepPageState extends State<StepPage> {
     final String gyro_x = _gyroscopeValues[0].toStringAsFixed(2);
     final String gyro_y = _gyroscopeValues[1].toStringAsFixed(2);
 
-    debugPrint("$position");
-
     return MaterialApp(
         debugShowCheckedModeBanner: false,
+
         home: Scaffold(
           body: Center(
             child: Column(
@@ -126,7 +129,7 @@ class _StepPageState extends State<StepPage> {
 
                     Padding(padding: EdgeInsets.all(10)),
 
-                    Text("お宝までの距離 : ${distance}",
+                    Text("お宝までの距離 : ${tresure_distance}",
                       style: TextStyle(fontSize: 18),),
                     //TODO  distanceが近いときに通知する
                   ],
@@ -136,12 +139,10 @@ class _StepPageState extends State<StepPage> {
 
                 Text("current_location : ${position}",
                 style: TextStyle(fontSize: 18),),
-
-
               ],
             ),
           ),
-        )
+        ),
     );
   }
 
@@ -172,7 +173,12 @@ class _StepPageState extends State<StepPage> {
     _streamSubscriptions.add(FlutterCompass.events.listen((double direction) {
       setState(() {
         _direction = direction;
-        print(_direction);
+
+        if(tresure_bool == true)
+          createDialog();
+
+        else return;
+
       });
     }));
   }
@@ -185,7 +191,7 @@ class _StepPageState extends State<StepPage> {
   }
 
 //  void _vibrate(){
-//    if (distance == 0) {
+//    if (distance < 100000) {
 //      Vibration.vibrate();
 //    }
 //  }
@@ -193,10 +199,29 @@ class _StepPageState extends State<StepPage> {
   Future<void> _getLocation(context) async {
     Position _currentPosition = await Geolocator()
         .getCurrentPosition(desiredAccuracy: LocationAccuracy.high); // ここで精度を「high」に指定している
-    print(_currentPosition);
+
     setState(() {
       position = _currentPosition;
     });
+  }
+
+  void createDialog(){
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return CupertinoAlertDialog(
+          title: Text("お宝接近中"),
+          content: Text(""),
+          actions: <Widget>[
+            CupertinoDialogAction(
+              child: Text("お宝接近中"),
+              isDestructiveAction: true,
+              onPressed: () => Navigator.pop(context, 0),
+            ),
+          ],
+        );
+      },
+    );
   }
 
 }
@@ -241,13 +266,18 @@ void UserStepRequest(Timer timer) async {
   if (resp.statusCode != 200) {
     return;
   }
-  print(json.decode(resp.body));
-//  print(resp.body);
+//  print(json.decode(resp.body));
+
+
+  tresure_info = json.decode(resp.body);
+  tresure_distance = tresure_info["distance"];
+  tresure_bool = tresure_info["isTreasure"];
+  print("Tresure_Distance : $tresure_distance");
 }
 
 void SetUserNameInMap(String username){
   name = username;
-  print("User name is set${name} in flight");
+  print("User name is set ${name} in flight");
 }
 
 String getDirection(double dir){
