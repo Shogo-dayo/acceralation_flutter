@@ -18,7 +18,13 @@ import 'package:geolocator/geolocator.dart';
 
 int step_sum = 0;
 int step_now = 0;
-String name = 'user_1';
+String name;
+double _direction;
+
+double north = 45.0;
+double west = 135.0;
+double south = 225.0;
+double east = 315.0;
 
 //TODO サーバからはお宝があった場合true,お宝がなかった場合false
 //TODO trueの場合のファンクションを考える
@@ -34,7 +40,6 @@ class _StepPageState extends State<StepPage> {
 
   int distance = 99999;
   bool get = false;
-  double _direction;
 
   acc.Acceralation acceralation;
   List<acc.Acceralation> acceralation_list = [];
@@ -42,9 +47,6 @@ class _StepPageState extends State<StepPage> {
   List<double> _gyroscopeValues;
 
   List<StreamSubscription<dynamic>> _streamSubscriptions = <StreamSubscription<dynamic>>[];
-
-  //x,y,z xは縦軸，yは横軸，zは奥行き
-  //gyro : デバイスの回転を示す
 
   AnimationController _controller;
 
@@ -57,13 +59,17 @@ class _StepPageState extends State<StepPage> {
     getacceralation();
     Timer.periodic(Duration(milliseconds: 500), getStep);
     Timer.periodic(Duration(milliseconds: 500), UserStepRequest);
-    _vibrate();
-    FlutterCompass.events.listen((double direction) {
-      setState(() {
-        _direction = direction;
-        debugPrint("$_direction");
-      });
-    });
+
+//    //バイブレーション機能
+//    _vibrate();
+//    FlutterCompass.events.listen((double direction) {
+//      setState(() {
+//        _direction = direction;
+//        debugPrint("direction : $_direction");
+//      });
+//    });
+
+    //現在地取得
     _getLocation(context);
 
   }
@@ -140,6 +146,7 @@ class _StepPageState extends State<StepPage> {
   }
 
   //positionにcurrentlocation内臓されている
+  //TODO currentlocationで駅スパ跡を用いる
 
   @override
   void dispose() {
@@ -162,6 +169,12 @@ class _StepPageState extends State<StepPage> {
         _gyroscopeValues = <double>[event.x, event.y, event.z];
       });
     }));
+    _streamSubscriptions.add(FlutterCompass.events.listen((double direction) {
+      setState(() {
+        _direction = direction;
+        print(_direction);
+      });
+    }));
   }
 
 
@@ -171,11 +184,11 @@ class _StepPageState extends State<StepPage> {
     acceralation_list.clear();
   }
 
-  void _vibrate(){
-    if (distance == 0) {
-      Vibration.vibrate();
-    }
-  }
+//  void _vibrate(){
+//    if (distance == 0) {
+//      Vibration.vibrate();
+//    }
+//  }
 
   Future<void> _getLocation(context) async {
     Position _currentPosition = await Geolocator()
@@ -205,7 +218,7 @@ Future<Post> fetchPost() async {
 //TODO ngrokは更新される
 
 void UserRegistRequest() async {
-  String url = "http://e739fe18.ngrok.io/location/update";
+  String url = "http://c1d204d8.ngrok.io/location/update";
   Map<String, String> headers = {'content-type': 'application/json'};
   String body = json.encode({'name':'user_1','x':3,'y':4,'step':1});
   http.Response resp = await http.post(url, headers: headers, body: body);
@@ -220,9 +233,10 @@ void UserRegistRequest() async {
 
 //これでサーバにデータを送信
 void UserStepRequest(Timer timer) async {
-  String url = "http://e739fe18.ngrok.io/location/update";
+  if(name == null) return;
+  String url = "http://c1d204d8.ngrok.io/location/update";
   Map<String, String> headers = {'content-type': 'application/json'};
-  String body = json.encode({'name':name,'step':step_now});
+  String body = json.encode({'name':name,'step':step_now, "direction" : getDirection(_direction)});
   http.Response resp = await http.post(url, headers: headers, body: body);
   if (resp.statusCode != 200) {
     return;
@@ -231,4 +245,16 @@ void UserStepRequest(Timer timer) async {
 //  print(resp.body);
 }
 
+void SetUserNameInMap(String username){
+  name = username;
+  print("User name is set${name} in flight");
+}
+
+String getDirection(double dir){
+  if(north <= dir && dir < west) return "n";
+  else if(west <= dir && dir < south) return "w";
+  else if(south <= dir && dir < east) return "s";
+  else return "e";
+
+}
 

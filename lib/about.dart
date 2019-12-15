@@ -1,6 +1,8 @@
 import "package:flutter/material.dart";
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:acceralation_flutter/step.dart' as step;
+import 'package:acceralation_flutter/phase.dart' as phase;
 
 //プロフィールページ
 //location/update
@@ -21,12 +23,17 @@ class _AboutPageState extends State<AboutPage> with SingleTickerProviderStateMix
 
   String name = "";
   String tel = "";
-  String url = "http://e739fe18.ngrok.io/location/update";
+  String url = "http://c1d204d8.ngrok.io/location/update";
 
   TextEditingController user = TextEditingController();
 
   int count = 0;
   String _message = 'Tap this button.';
+
+
+  String accountSid = ""; //YOUR Account SID
+  String authToken = ""; // Your Auth Token
+//  client = require('twilio')(accountSid, authToken);
 
   //TODO サーバにnameと電話番号を送る
   //TODO ngrokは更新される
@@ -149,6 +156,7 @@ class _AboutPageState extends State<AboutPage> with SingleTickerProviderStateMix
                                   )
                                 ],
                               )),
+
                           Padding(
                               padding: EdgeInsets.only(
                                   left: 25.0, right: 25.0, top: 25.0),
@@ -177,6 +185,7 @@ class _AboutPageState extends State<AboutPage> with SingleTickerProviderStateMix
                                 children: <Widget>[
                                   Flexible(
                                     child: TextField(
+                                      controller: user,
                                       decoration: InputDecoration(
                                         hintText: "Enter Your Name",
                                       ),
@@ -316,18 +325,19 @@ class _AboutPageState extends State<AboutPage> with SingleTickerProviderStateMix
                     textColor: Colors.white,
                     color: Colors.green,
                     onPressed: () {
-                      setState(() {
                         _status = true;
                         FocusScope.of(context).requestFocus(FocusNode());
-                        debugPrint("Name : ${name}");
+                        debugPrint("Name : ${user}");
 
                         //ここでユーザ名をサーバに送る
                         //ここでのngrokはok
-                        UserAboutRequest(name);
-                      });
+                        step.SetUserNameInMap(user.text);
+                        phase.SetUserNameInFlight(user.text);
+
                     },
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(20.0)),
+
                   )),
             ),
             flex: 2,
@@ -360,13 +370,17 @@ class _AboutPageState extends State<AboutPage> with SingleTickerProviderStateMix
     );
   }
 
-
+  //TODO Twilio APIを用いて電話とSMS
 
   void _onPressedTEL() {
     setState(() {
       ++count;
       _message = 'Tap count $count';
     });
+//    client.calls.create(
+//        to = "+8108057160092",
+//    from = "+8108057160092",
+//    url = "");
   }
 
   void _onPressedSMS() {
@@ -396,15 +410,4 @@ class _AboutPageState extends State<AboutPage> with SingleTickerProviderStateMix
   }
 }
 
-void UserAboutRequest(String name) async {
-  String url = "http://e739fe18.ngrok.io/location/update";
-  Map<String, String> headers = {'content-type': 'application/json'};
-  String body = json.encode({'name':"name",'tel':"tel1"});
-  http.Response resp = await http.post(url, headers: headers, body: body);
-  if (resp.statusCode != 200) {
-    return;
-  }
-  print(json.decode(resp.body));
-//  print(resp.body);
-}
 

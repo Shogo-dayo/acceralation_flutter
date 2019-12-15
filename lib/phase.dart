@@ -4,6 +4,7 @@ import 'dart:convert';
 
 //phaseページ
 //location/phase
+String name;
 
 class PhasePage extends StatefulWidget {
   @override
@@ -18,6 +19,8 @@ class PhasePageState extends State<PhasePage> {
 
   // init the step to 0th position
   int current_phase = 0;
+  final _key = GlobalKey<State>();
+
 
   //TODO currentstepの状態で足跡を制御する.
   //TODO サーバにnameとcurrent_stepを送る
@@ -144,14 +147,8 @@ class PhasePageState extends State<PhasePage> {
                     // jump to the tapped step
                     current_phase = step;
 
-
-                  // Log function call
-                    print("onPhaseTapped : " + step.toString());
-
-                    debugPrint("Current_Phase : ${current_phase}");
-
-                    //TODO ここで,現時点でのステップをサーバに送る
                     UserPhaseRequest(current_phase);
+
                 },
 
 
@@ -167,13 +164,9 @@ class PhasePageState extends State<PhasePage> {
                     }
                   });
 
-                  debugPrint("Current_Phase : ${current_phase}");
-
                   //TODO ここで,現時点でのステップをサーバに送る
                   UserPhaseRequest(current_phase);
 
-                  // Log function call
-                  print("onPhaseCancel : " + current_phase.toString());
                 },
                 // On hitting continue button, change the state
 
@@ -188,10 +181,6 @@ class PhasePageState extends State<PhasePage> {
                       current_phase = 0;
                     }
                   });
-                  // Log function call
-                  print("onPhaseContinue : " + current_phase.toString());
-
-                  debugPrint("Current_Phase : ${current_phase}");
 
                   //TODO ここで,現時点でのステップをサーバに送る
                   UserPhaseRequest(current_phase);
@@ -280,13 +269,21 @@ class PhasePageState extends State<PhasePage> {
 
 //これでサーバにデータを送信
 void UserPhaseRequest(int current_phase) async {
-  String url = "http://e739fe18.ngrok.io/location/phase";
+  debugPrint("Current_Phase : ${current_phase}");
+  if(name == null) return;
+  String url = "http://c1d204d8.ngrok.io/location/phase";
   Map<String, String> headers = {'content-type': 'application/json'};
-  String body = json.encode({'name':"user_1",'step':current_phase});
+  String body = json.encode({'name':name,'current_phase':current_phase});
   http.Response resp = await http.post(url, headers: headers, body: body);
   if (resp.statusCode != 200) {
+    print("sucesssssssssssssssssss");
     return;
   }
   print(json.decode(resp.body));
 //  print(resp.body);
+}
+
+void SetUserNameInFlight(String username){
+  name = username;
+  print("User name is set ${name} in flight");
 }
