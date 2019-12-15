@@ -11,6 +11,8 @@ import 'package:flutter_compass/flutter_compass.dart';
 import 'package:vibration/vibration.dart';
 
 import 'package:geolocator/geolocator.dart';
+import 'package:audioplayers/audioplayers.dart';
+import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
 
 
 //足跡ページ
@@ -22,14 +24,27 @@ String name;
 double _direction;
 int tresure_distance;
 bool tresure_bool;
+double positionLat ;
+double positionLon ;
+
+double currentLat = 34.215247;
+double currentLon = 134.018517;
 
 double north = 45.0;
 double west = 135.0;
 double south = 225.0;
 double east = 315.0;
 
+double airport_lat = 34.215207;
+double airport_lon = 135.018567;
+
+double between_distance;
+
+
 
 Map<String, dynamic> tresure_info;
+
+AudioPlayer audioPlugin = AudioPlayer();
 
 //TODO サーバからはお宝があった場合true,お宝がなかった場合false
 //TODO trueの場合のファンクションを考える
@@ -50,31 +65,31 @@ class _StepPageState extends State<StepPage> {
 
   List<double> _gyroscopeValues;
 
-  List<StreamSubscription<dynamic>> _streamSubscriptions = <StreamSubscription<dynamic>>[];
+  List<StreamSubscription<dynamic>> _streamSubscriptions = <
+      StreamSubscription<dynamic>>[];
 
   AnimationController _controller;
 
   Position position;
+
+  Map data;
+
+
 
   @override
   void initState() {
     super.initState();
     print("init start");
     getacceralation();
-    Timer.periodic(Duration(milliseconds: 500), getStep);
-    Timer.periodic(Duration(milliseconds: 500), UserStepRequest);
-
-//    //バイブレーション機能
-//    _vibrate();
-//    FlutterCompass.events.listen((double direction) {
-//      setState(() {
-//        _direction = direction;
-//        debugPrint("direction : $_direction");
-//      });
-//    });
-
     //現在地取得
     _getLocation(context);
+
+    //現在地と空港の距離算出
+    calucalateDistance();
+    //バイブレーション機能
+    _vibrate();
+    Timer.periodic(Duration(milliseconds: 1000), getStep);
+    Timer.periodic(Duration(milliseconds: 1000), UserStepRequest);
 
   }
 
@@ -86,68 +101,68 @@ class _StepPageState extends State<StepPage> {
     final String gyro_y = _gyroscopeValues[1].toStringAsFixed(2);
 
     return MaterialApp(
-        debugShowCheckedModeBanner: false,
+      debugShowCheckedModeBanner: false,
 
-        home: Scaffold(
-          body: Center(
-            child: Column(
-              children: <Widget>[
-                Padding(padding: EdgeInsets.all(50)),
+      home: Scaffold(
+        body: Center(
+          child: Column(
+            children: <Widget>[
+              Padding(padding: EdgeInsets.all(50)),
 
-                Row(
-                  children: <Widget>[
-                    Padding(padding: EdgeInsets.all(30)),
+              Row(
+                children: <Widget>[
+                  Padding(padding: EdgeInsets.all(30)),
 
-                    Container(
-                        child: Image.asset("lib/images/step.png",
-                          height: 100,
-                          width: 100,
-                          fit: BoxFit.fitWidth,)
-                    ),
+                  Container(
+                      child: Image.asset("lib/images/step.png",
+                        height: 100,
+                        width: 100,
+                        fit: BoxFit.fitWidth,)
+                  ),
 
-                    Padding(padding: EdgeInsets.all(10)),
+                  Padding(padding: EdgeInsets.all(10)),
 
-                    Text("歩数 : ${step_sum}",
-                      style: TextStyle(fontSize: 20),
-                    ),
-                  ],
-                ),
+                  Text("歩数 : ${step_sum}",
+                    style: TextStyle(fontSize: 20),
+                  ),
+                ],
+              ),
 
 
-                Padding(padding: EdgeInsets.all(30)),
+              Padding(padding: EdgeInsets.all(30)),
 
-                Row(
-                  children: <Widget>[
-                    Padding(padding: EdgeInsets.all(30)),
+              Row(
+                children: <Widget>[
+                  Padding(padding: EdgeInsets.all(30)),
 
-                    Container(
-                        child: Image.asset("lib/images/tresure.jpg",
-                          height: 100,
-                          width: 100,
-                          fit: BoxFit.fitWidth,)
-                    ),
+                  Container(
+                      child: Image.asset("lib/images/tresure.jpg",
+                        height: 100,
+                        width: 100,
+                        fit: BoxFit.fitWidth,)
+                  ),
 
-                    Padding(padding: EdgeInsets.all(10)),
+                  Padding(padding: EdgeInsets.all(10)),
 
-                    Text("お宝までの距離 : ${tresure_distance}",
-                      style: TextStyle(fontSize: 18),),
-                    //TODO  distanceが近いときに通知する
-                  ],
-                ),
+                  Text("お宝までの距離 : ${tresure_distance}",
+                    style: TextStyle(fontSize: 18),),
+                  //TODO  distanceが近いときに通知する
+                ],
+              ),
 
-                Padding(padding: EdgeInsets.all(30)),
+              Padding(padding: EdgeInsets.all(30)),
 
-                Text("current_location : ${position}",
-                style: TextStyle(fontSize: 18),),
-              ],
-            ),
+//              Text("current_location : ${position}",
+//                style: TextStyle(fontSize: 18),),
+            ],
           ),
         ),
+      ),
     );
   }
 
   //positionにcurrentlocation内臓されている
-  //TODO currentlocationで駅スパ跡を用いる
+
 
   @override
   void dispose() {
@@ -157,7 +172,7 @@ class _StepPageState extends State<StepPage> {
     }
   }
 
-  void getacceralation(){
+  void getacceralation() {
     _streamSubscriptions
         .add(accelerometerEvents.listen((AccelerometerEvent event) {
       setState(() {
@@ -174,56 +189,69 @@ class _StepPageState extends State<StepPage> {
       setState(() {
         _direction = direction;
 
-        if(tresure_bool == true)
+        if (tresure_bool == true)
           createDialog();
-
-        else return;
-
+        else
+          return;
       });
     }));
   }
 
 
-  void getStep(Timer timer){
+  void getStep(Timer timer) {
     step_now = acc.getStep(acceralation_list);
     step_sum += step_now;
     acceralation_list.clear();
   }
 
-//  void _vibrate(){
-//    if (distance < 100000) {
-//      Vibration.vibrate();
-//    }
-//  }
+  void _vibrate(){
+    if (tresure_bool == true) {
+      Vibration.vibrate(duration: 500);
+    }
+  }
 
   Future<void> _getLocation(context) async {
     Position _currentPosition = await Geolocator()
-        .getCurrentPosition(desiredAccuracy: LocationAccuracy.high); // ここで精度を「high」に指定している
+        .getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high); // ここで精度を「high」に指定している
 
     setState(() {
       position = _currentPosition;
+      positionLat = position.latitude;
+      positionLon = position.longitude;
+
     });
   }
 
-  void createDialog(){
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return CupertinoAlertDialog(
-          title: Text("お宝接近中"),
-          content: Text(""),
-          actions: <Widget>[
-            CupertinoDialogAction(
-              child: Text("お宝接近中"),
-              isDestructiveAction: true,
-              onPressed: () => Navigator.pop(context, 0),
-            ),
-          ],
-        );
-      },
-    );
+
+  Future<void> calucalateDistance() async {
+    http.Response response = await http.get("https://api.ekispert.jp/v1/json/search/course/plain?key=eBBWPyXMYduCN759&from=${currentLat},${currentLon},wgs84&to=${airport_lat},${airport_lon},wgs84");
+    data = json.decode(response.body);
+    between_distance = data["object"]["ResultSet"]["Course"][0]["Route"]["distance"];
+    print("get body : $data");
+    print("get between : $between_distance");
+
   }
 
+  void createDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) =>
+          CupertinoAlertDialog(
+            title: Text("至急！！！！！！！！"),
+            content: Text(""),
+            actions: <Widget>[
+              CupertinoDialogAction(
+                child: Text("お宝接近中"),
+                isDestructiveAction: true,
+                onPressed: () {
+                  Navigator.of(context).pop(0);
+                },
+              ),
+            ],
+          ),
+    );
+  }
 }
 
 
@@ -256,7 +284,7 @@ void UserRegistRequest() async {
 }
 
 
-//これでサーバにデータを送信
+//これでサーバにユーザのstepデータを送信
 void UserStepRequest(Timer timer) async {
   if(name == null) return;
   String url = "http://c1d204d8.ngrok.io/location/update";
@@ -273,6 +301,11 @@ void UserStepRequest(Timer timer) async {
   tresure_distance = tresure_info["distance"];
   tresure_bool = tresure_info["isTreasure"];
   print("Tresure_Distance : $tresure_distance");
+
+  if(tresure_distance > 500) callFar();
+  else if(tresure_distance > 350) callSoso();
+  else callNear();
+
 }
 
 void SetUserNameInMap(String username){
@@ -285,6 +318,17 @@ String getDirection(double dir){
   else if(west <= dir && dir < south) return "w";
   else if(south <= dir && dir < east) return "s";
   else return "e";
-
 }
 
+void callNear() {
+  FlutterRingtonePlayer.playNotification(volume:1 , looping:false);
+}
+
+void callSoso() {
+  FlutterRingtonePlayer.playNotification(volume:0.1 , looping:false);
+}
+
+void callFar() {
+  FlutterRingtonePlayer.playNotification(volume:0.01 , looping:false);
+
+}
